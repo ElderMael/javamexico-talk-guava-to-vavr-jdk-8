@@ -2,13 +2,16 @@ package io.eldermael.java.libs.first;
 
 import ch.lambdaj.Lambda;
 import ch.lambdaj.function.closure.Closure;
+import ch.lambdaj.function.convert.Converter;
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import io.eldermael.java.libs.BaseTestConfiguration;
 import io.vavr.collection.List;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
@@ -27,25 +30,36 @@ import static org.hamcrest.Matchers.greaterThan;
 /**
  * We had tons of loops that we refactored to LambaJ
  */
+@Slf4j
+@SuppressWarnings("ALL")
 public class CollectionTest extends BaseTestConfiguration {
 
   @Test
   void shouldPrintCollectionWithoutLoopsFilteringLessThanTenInJavaFive() {
     try {
+      String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
+      File batchFile = new File(fileName);
       var batchFileLines = Files.readLines(
-          new File(this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile()),
+          batchFile,
           Charsets.UTF_8
+      );
+
+      Preconditions.checkState(
+          batchFileLines.size() > 0,
+          "Batch file '%s' has no lines",
+          batchFile.getName()
       );
 
       Closure toInt = Lambda.closure().of(Integer.class, "parseInt", var(String.class));
 
-      var ints = toInt.each(batchFileLines);
+      var ints = Lambda.convert(batchFileLines, (Converter<String, Integer>) toInt.cast(Converter.class));
 
-      var greaterThanTen = (java.util.List<Integer>) Lambda.filter(greaterThan(10), ints);
+      var greaterThanTen = Lambda.filter(greaterThan(10), ints);
 
       assertThat(greaterThanTen)
           .as("LambdaJ should convert to ints and filter")
           .containsExactly(20, 30);
+
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
@@ -103,3 +117,4 @@ public class CollectionTest extends BaseTestConfiguration {
         .containsExactly(20, 30);
   }
 }
+
