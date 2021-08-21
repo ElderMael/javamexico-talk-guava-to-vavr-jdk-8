@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'idea'
+}
+
+sourceCompatibility = 16
+targetCompatibility = 16
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Testing
+    testImplementation('org.awaitility:awaitility:4.1.0')
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation("org.assertj:assertj-core:3.20.2")
+    testImplementation("org.assertj:assertj-guava:3.4.0")
+    testImplementation(platform('org.junit:junit-bom:5.7.2'))
+    testImplementation('ch.qos.logback:logback-classic:1.2.5')
+
+
+    // Logging
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.slf4j:jul-to-slf4j:1.7.32'
+
+    // Java Libs
+    implementation 'io.vavr:vavr:0.10.4'
+    implementation 'org.javatuples:javatuples:1.2'
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation 'com.googlecode.lambdaj:lambdaj:2.3.3'
+
+}
+
+test {
+    useJUnitPlatform()
+}
