@@ -10,7 +10,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import io.eldermael.java.libs.BaseTestConfiguration;
-import io.vavr.collection.List;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static ch.lambdaj.Lambda.avg;
@@ -39,7 +39,7 @@ public class CollectionTest extends BaseTestConfiguration {
     try {
       String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
       File batchFile = new File(fileName);
-      var batchFileLines = Files.readLines(
+      List<String> batchFileLines = Files.readLines(
           batchFile,
           Charsets.UTF_8
       );
@@ -98,7 +98,7 @@ public class CollectionTest extends BaseTestConfiguration {
 
   @Test
   void shouldPrintCollectionWithoutLoopsFilteringLessThanTenUsingVavr() {
-    var greaterThanTen = List.of(10, 20, 30)
+    var greaterThanTen = io.vavr.collection.List.of(10, 20, 30)
         .filter((e) -> e > 10);
 
     // Works because Vavr List is an iterable
