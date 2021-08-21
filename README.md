@@ -1,5 +1,7 @@
 # From Guava/LambdaJ To Vavr and JDK 8+
 
+[![Modern Java](./refactoring.mp4)](./refactoring.mp4)
+
 Supporting material for a talk about the evolution of Java 5.0 using supporting libraries like Guava and LambdaJ to the
 current state of the JDK API.
 
