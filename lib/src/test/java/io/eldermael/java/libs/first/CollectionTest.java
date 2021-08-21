@@ -38,6 +38,7 @@ public class CollectionTest extends BaseTestConfiguration {
   void shouldPrintCollectionWithoutLoopsFilteringLessThanTenInJavaFive() {
     try {
       String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
+      log.info("Reading file '{}'", fileName);
       File batchFile = new File(fileName);
       List<String> batchFileLines = Files.readLines(
           batchFile,
