@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import static ch.lambdaj.Lambda.convert;
+import static ch.lambdaj.Lambda.filter;
 import static ch.lambdaj.Lambda.var;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -167,17 +167,26 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
           batchFile.getName()
       );
 
+      // Point to object/static methods for futher use
       Closure toInt = Lambda.closure().of(Integer.class, "parseInt", var(String.class));
 
-      List<Integer> ints = Lambda.convert(batchFileLines, (Converter<String, Integer>) toInt.cast(Converter.class));
+      // Closures can be cast to any Functional Inteface i.e. any one-method inteface
+      List<Integer> ints = convert(batchFileLines, (Converter<String, Integer>) toInt.cast(Converter.class));
 
-      List<Integer> greaterThanTen = Lambda.filter(greaterThan(10), ints);
+      // Filtaring, projection and aggregation can use Hamcrest matchers
+      // This simplifies code greatly
+      List<Integer> greaterThanTen = filter(greaterThan(10), ints);
 
       assertThat(greaterThanTen)
           .as("Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
     } catch (IOException e) {
+      // This will propagate as RuntimeException
+      // No longer recommended
+      throw Throwables.propagate(e);
+    } catch (Exception e) {
+      // This will propagate too
       throw Throwables.propagate(e);
     }
   }
@@ -202,12 +211,23 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
 
       Closure toInt = Lambda.closure().of(Integer.class, "parseInt", var(String.class));
 
-      List<Integer> greaterThanTen = LambdaCollections
+      // Nesting functions gets hard to read the more you add
+      List<Integer> greaterThanTen = filter(
+          greaterThan(10),
+          convert(batchFileLines, (Converter<String, Integer>) toInt.cast(Converter.class))
+      );
+
+      // Fluent way is more readable with many operations
+      List<Integer> greaterThanTenFluent = LambdaCollections
           .with(batchFileLines)
           .convert((Converter<String, Integer>) toInt.cast(Converter.class))
           .retain(greaterThan(10));
 
       assertThat(greaterThanTen)
+          .as("Assert collection should only contain 20 and 30")
+          .containsExactly(20, 30);
+
+      assertThat(greaterThanTenFluent)
           .as("Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
