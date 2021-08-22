@@ -12,14 +12,15 @@ import java.util.function.Consumer;
 public class BaseTestConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger("io.eldermael.java.libs.test");
-  private static final StringBuilder descriptionReportBuilder = new StringBuilder(String.format("Assertions:%n"));
+  private static final StringBuilder descriptionReportBuilder = new StringBuilder();
 
 
   @BeforeAll
   public static void configureAssertion() {
+    descriptionReportBuilder.setLength(0);
+    descriptionReportBuilder.append(String.format("Assertions:%n"));
     Consumer<Description> descriptionConsumer = desc -> descriptionReportBuilder.append(String.format("-- %s%n", desc));
     Assertions.setDescriptionConsumer(descriptionConsumer);
-
   }
 
   @AfterAll

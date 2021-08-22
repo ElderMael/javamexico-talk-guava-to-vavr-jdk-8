@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,27 +31,28 @@ import static ch.lambdaj.Lambda.var;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
-/**
- * We had tons of loops that we refactored to LambaJ
- */
 @Slf4j
 @SuppressWarnings("ALL")
 public class HowItLookedLikeTest extends BaseTestConfiguration {
 
   @Test
   void shouldReadLinesFromFileUsingJavaFiveIdioms() {
+    // Get a file
     String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
     log.info("Reading file '{}'", fileName);
     File batchFile = new File(fileName);
 
+    // Prepare I/O to read the file
     BufferedReader reader = null;
     FileInputStream fileInput = null;
 
     try {
 
+      // Compose the I/O
       fileInput = new FileInputStream(batchFile);
       reader = new BufferedReader(new InputStreamReader(fileInput, "UTF-8"));
 
+      // Read the lines
       List<String> batchFileLines = new LinkedList<String>();
       String line = null;
 
@@ -58,10 +60,12 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
         batchFileLines.add(line);
       }
 
+      // Check that the file contains lines
       if (batchFileLines.size() == 0) {
         throw new IllegalStateException("Batch file '" + fileName + "' has no lines");
       }
 
+      // Convert the lines to data types and filter
       List<Integer> ints = new LinkedList<Integer>();
 
       for (int i = 0; i < batchFileLines.size(); i++) {
@@ -75,14 +79,12 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
           .as("Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
-
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException("Batch file '" + fileName + "' does not exists", e);
+      // Propagate errors to next layer
     } catch (IOException e) {
       throw new RuntimeException("Error opening file '" + fileName + "'", e);
     } finally {
       // If you thow any exceptions in the finally block, they override the exceptions thrown in the
-      // try block
+      // try block, thus you need to suppress them and log them at least
       if (fileInput != null) {
         try {
           fileInput.close();
@@ -104,19 +106,23 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
 
   @Test
   void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuava() {
+    // Get the file
     String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
     log.info("Reading file '{}'", fileName);
     File batchFile = new File(fileName);
 
     try {
+      // Ignore this is reading the whole file into memory
       List<String> batchFileLines = Files.readLines(batchFile, Charsets.UTF_8);
 
+      // Preconditions are guard clauses
       Preconditions.checkState(
           batchFileLines.size() > 0,
           "Batch file '%s' has no lines",
           batchFile.getName()
       );
 
+      // Higher order functions for Lists
       List<Integer> ints = Lists.transform(batchFileLines, new Function<String, Integer>() {
         @Override
         public @Nullable Integer apply(@Nullable String input) {
@@ -125,6 +131,8 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       });
 
 
+      // Iterables or Collections2
+      //Collection<Integer> greaterThanTen = Collections2.filter(ints,  new Predicate<Integer>() {
       Iterable<Integer> greaterThanTen = Iterables.filter(ints, new Predicate<Integer>() {
         @Override
         public boolean apply(@Nullable Integer input) {
