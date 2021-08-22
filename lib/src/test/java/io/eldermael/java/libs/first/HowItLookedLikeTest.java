@@ -5,6 +5,7 @@ import ch.lambdaj.collection.LambdaCollections;
 import ch.lambdaj.function.closure.Closure;
 import ch.lambdaj.function.convert.Converter;
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
@@ -13,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import io.eldermael.java.libs.BaseTestConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.util.Strings;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -25,10 +25,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ch.lambdaj.Lambda.var;
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
@@ -51,7 +49,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
     try {
 
       fileInput = new FileInputStream(batchFile);
-      reader = new BufferedReader(new InputStreamReader(fileInput));
+      reader = new BufferedReader(new InputStreamReader(fileInput, "UTF-8"));
 
       List<String> batchFileLines = new LinkedList<String>();
       String line = null;
@@ -74,7 +72,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       }
 
       assertThat(ints)
-          .as("Should only contain 20 and 30")
+          .as("Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
 
@@ -105,11 +103,51 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
   }
 
   @Test
-  void shouldPrintCollectionWithoutLoopsFilteringLessThanTenInJavaFive() {
+  void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuava() {
+    String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
+    log.info("Reading file '{}'", fileName);
+    File batchFile = new File(fileName);
+
+    try {
+      List<String> batchFileLines = Files.readLines(batchFile, Charsets.UTF_8);
+
+      Preconditions.checkState(
+          batchFileLines.size() > 0,
+          "Batch file '%s' has no lines",
+          batchFile.getName()
+      );
+
+      List<Integer> ints = Lists.transform(batchFileLines, new Function<String, Integer>() {
+        @Override
+        public @Nullable Integer apply(@Nullable String input) {
+          return Integer.parseInt(input);
+        }
+      });
+
+
+      Iterable<Integer> greaterThanTen = Iterables.filter(ints, new Predicate<Integer>() {
+        @Override
+        public boolean apply(@Nullable Integer input) {
+          return input > 10;
+        }
+      });
+
+      assertThat(greaterThanTen)
+          .as("Assert collection should only contain 20 and 30")
+          .containsExactly(20, 30);
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+
+  }
+
+  @Test
+  void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuavaAndLambdaJ() {
     try {
       String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
       log.info("Reading file '{}'", fileName);
       File batchFile = new File(fileName);
+
       List<String> batchFileLines = Files.readLines(
           batchFile,
           Charsets.UTF_8
@@ -128,7 +166,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       List<Integer> greaterThanTen = Lambda.filter(greaterThan(10), ints);
 
       assertThat(greaterThanTen)
-          .as("LambdaJ should convert to ints and filter")
+          .as("Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
     } catch (IOException e) {
@@ -137,57 +175,39 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
   }
 
   @Test
-  void shouldPrintCollectionWithoutLoopsFilteringLessThanTenUsingLambdaJ() {
-    // LambdaJ a bit more fluent
-    var greaterThanTen = LambdaCollections
-        .with(newArrayList(10, 20, 30))
-        .retain(greaterThan(10));
+  void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuavaAndLambdaJAndLambdaCollection() {
+    String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
+    log.info("Reading file '{}'", fileName);
+    File batchFile = new File(fileName);
 
-    assertThat(greaterThanTen)
-        .as("The collection only has 20 and 30 as elements")
-        .containsExactly(20, 30);
+    try {
+      List<String> batchFileLines = Files.readLines(
+          batchFile,
+          Charsets.UTF_8
+      );
 
-    var average = Lambda.avg(greaterThanTen);
+      Preconditions.checkState(
+          batchFileLines.size() > 0,
+          "Batch file '%s' has no lines",
+          batchFile.getName()
+      );
 
-    assertThat(average)
-        .as("The average is 25 for the collection " + Strings.join(greaterThanTen))
-        .isEqualTo(25);
+      Closure toInt = Lambda.closure().of(Integer.class, "parseInt", var(String.class));
+
+      List<Integer> greaterThanTen = LambdaCollections
+          .with(batchFileLines)
+          .convert((Converter<String, Integer>) toInt.cast(Converter.class))
+          .retain(greaterThan(10));
+
+      assertThat(greaterThanTen)
+          .as("Assert collection should only contain 20 and 30")
+          .containsExactly(20, 30);
+
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
 
   }
 
-  @Test
-  void shouldPrintCollectionWithoutLoopsFilteringLessThanTenUsingGuava() {
-    var greaterThanTen = Iterables.filter(newArrayList(10, 20, 30), new Predicate<Integer>() {
-      @Override
-      public boolean apply(@Nullable Integer e) {
-        return e > 10;
-      }
-    });
-
-    // Guava returns Iterables
-    assertThat(greaterThanTen)
-        .containsExactly(20, 30);
-  }
-
-  @Test
-  void shouldPrintCollectionWithoutLoopsFilteringLessThanTenUsingVavr() {
-    var greaterThanTen = io.vavr.collection.List.of(10, 20, 30)
-        .filter((e) -> e > 10);
-
-    // Works because Vavr List is an iterable
-    assertThat(greaterThanTen)
-        .containsExactly(20, 30);
-  }
-
-  @Test
-  void shouldPrintCollectionWithoutLoopsFilteringLessThanTenUsingJdkStreams() {
-    var greaterThanTen = Lists.newArrayList(10, 20, 30)
-        .stream()
-        .filter((e) -> e > 10)
-        .collect(Collectors.toList());
-
-    assertThat(greaterThanTen)
-        .containsExactly(20, 30);
-  }
 }
 

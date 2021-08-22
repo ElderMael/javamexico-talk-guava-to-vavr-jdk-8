@@ -1,13 +1,10 @@
-package io.eldermael.java.libs.first;
+package io.eldermael.java.libs;
 
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import io.eldermael.java.libs.BaseTestConfiguration;
-import io.eldermael.java.libs.MockProcesses;
-import io.eldermael.java.libs.ProcessResult;
 import io.vavr.concurrent.Future;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
