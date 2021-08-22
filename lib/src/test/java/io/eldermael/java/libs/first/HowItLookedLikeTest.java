@@ -38,9 +38,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
   @Test
   void shouldReadLinesFromFileUsingJavaFiveIdioms() {
     // Get a file
-    String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
-    log.info("Reading file '{}'", fileName);
-    File batchFile = new File(fileName);
+    File batchFile = getFileFromClasspath("first/batchfile.txt");
 
     // Prepare I/O to read the file
     BufferedReader reader = null;
@@ -62,7 +60,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
 
       // Check that the file contains lines
       if (batchFileLines.size() == 0) {
-        throw new IllegalStateException("Batch file '" + fileName + "' has no lines");
+        throw new IllegalStateException("Batch file '" + batchFile + "' has no lines");
       }
 
       // Convert the lines to data types and filter
@@ -81,7 +79,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
 
       // Propagate errors to next layer
     } catch (IOException e) {
-      throw new RuntimeException("Error opening file '" + fileName + "'", e);
+      throw new RuntimeException("Error opening file '" + batchFile + "'", e);
     } finally {
       // If you thow any exceptions in the finally block, they override the exceptions thrown in the
       // try block, thus you need to suppress them and log them at least
@@ -89,7 +87,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
         try {
           fileInput.close();
         } catch (IOException e) {
-          log.error("Exception thrown while opening file '{}'", fileName, e);
+          log.error("Exception thrown while opening file '{}'", batchFile, e);
         }
       }
 
@@ -97,7 +95,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
         try {
           reader.close();
         } catch (IOException e) {
-          log.error("Exception thrown while closing file '{}'", fileName, e);
+          log.error("Exception thrown while closing file '{}'", batchFile, e);
         }
       }
     }
@@ -107,9 +105,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
   @Test
   void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuava() {
     // Get the file
-    String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
-    log.info("Reading file '{}'", fileName);
-    File batchFile = new File(fileName);
+    File batchFile = getFileFromClasspath("first/batchfile.txt");
 
     try {
       // Ignore this is reading the whole file into memory
@@ -152,9 +148,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
   @Test
   void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuavaAndLambdaJ() {
     try {
-      String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
-      log.info("Reading file '{}'", fileName);
-      File batchFile = new File(fileName);
+      File batchFile = getFileFromClasspath("first/batchfile.txt");
 
       List<String> batchFileLines = Files.readLines(
           batchFile,
@@ -193,9 +187,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
 
   @Test
   void shouldReadLinesFromFileUsingJavaFiveIdiomsPlusGuavaAndLambdaJAndLambdaCollection() {
-    String fileName = this.getClass().getClassLoader().getResource("first/batchfile.txt").getFile();
-    log.info("Reading file '{}'", fileName);
-    File batchFile = new File(fileName);
+    File batchFile = getFileFromClasspath("first/batchfile.txt");
 
     try {
       List<String> batchFileLines = Files.readLines(
@@ -235,6 +227,12 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       throw Throwables.propagate(e);
     }
 
+  }
+
+  private File getFileFromClasspath(String filePath) {
+    String fileName = this.getClass().getClassLoader().getResource(filePath).getFile();
+    log.info("Reading file '{}'", fileName);
+    return new File(fileName);
   }
 
 }
