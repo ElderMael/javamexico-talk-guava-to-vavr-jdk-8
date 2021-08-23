@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class BaseTestConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger("io.eldermael.java.libs.test");
-  private static final StringBuilder descriptionReportBuilder = new StringBuilder();
+  private static final StringBuffer descriptionReportBuilder = new StringBuffer();
 
 
   @BeforeAll

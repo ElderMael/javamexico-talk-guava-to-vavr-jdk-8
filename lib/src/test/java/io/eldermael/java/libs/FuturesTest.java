@@ -22,27 +22,10 @@ public class FuturesTest extends BaseTestConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(FuturesTest.class);
 
+  // Guava's ListenableFutures are created from this wrapper
+  // or SettableFuture
   private static final ListeningExecutorService wrappedExecutor = MoreExecutors
       .listeningDecorator(ForkJoinPool.commonPool());
-
-  private final Condition<java.util.concurrent.Future<Integer>> successfulProcess =
-      new Condition<java.util.concurrent.Future<Integer>>((result) -> {
-        try {
-          return result.get().equals(0);
-        } catch (InterruptedException | ExecutionException e) {
-          throw new AssertionError(e);
-        }
-      }, "returned a zero exit code");
-
-  private final Condition<java.util.concurrent.Future<ProcessResult>> successfulProcessResult =
-      new Condition<java.util.concurrent.Future<ProcessResult>>((result) -> {
-        try {
-          return result.get().equals(ProcessResult.SUCCESS);
-        } catch (InterruptedException | ExecutionException e) {
-          throw new AssertionError(e);
-        }
-      }, "returned successful process result");
-
 
   @Test
   void guavaFutureExample() {
@@ -156,4 +139,22 @@ public class FuturesTest extends BaseTestConfiguration {
 
 
   }
+
+  private final Condition<java.util.concurrent.Future<Integer>> successfulProcess =
+      new Condition<java.util.concurrent.Future<Integer>>((result) -> {
+        try {
+          return result.get().equals(0);
+        } catch (InterruptedException | ExecutionException e) {
+          throw new AssertionError(e);
+        }
+      }, "returned a zero exit code");
+
+  private final Condition<java.util.concurrent.Future<ProcessResult>> successfulProcessResult =
+      new Condition<java.util.concurrent.Future<ProcessResult>>((result) -> {
+        try {
+          return result.get().equals(ProcessResult.SUCCESS);
+        } catch (InterruptedException | ExecutionException e) {
+          throw new AssertionError(e);
+        }
+      }, "returned successful process result");
 }
