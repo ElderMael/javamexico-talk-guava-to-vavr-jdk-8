@@ -74,7 +74,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       }
 
       assertThat(ints)
-          .as("Assert collection should only contain 20 and 30")
+          .as("[Java 5] Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
       // Propagate errors to next layer
@@ -137,7 +137,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       });
 
       assertThat(greaterThanTen)
-          .as("Assert collection should only contain 20 and 30")
+          .as("[Java+Guava] Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
     } catch (IOException e) {
       throw Throwables.propagate(e);
@@ -172,7 +172,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       List<Integer> greaterThanTen = filter(greaterThan(10), ints);
 
       assertThat(greaterThanTen)
-          .as("Assert collection should only contain 20 and 30")
+          .as("[Java+Guava+LambdaJ] Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
     } catch (IOException e) {
@@ -216,11 +216,11 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
           .retain(greaterThan(10));
 
       assertThat(greaterThanTen)
-          .as("Assert collection should only contain 20 and 30")
+          .as("[Java+Guava+LambdaJ+Composed] Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
       assertThat(greaterThanTenFluent)
-          .as("Assert collection should only contain 20 and 30")
+          .as("[Java+Guava+LambdaJ+Fluent]Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
     } catch (IOException e) {
