@@ -220,7 +220,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
           .containsExactly(20, 30);
 
       assertThat(greaterThanTenFluent)
-          .as("[Java+Guava+LambdaJ+Fluent]Assert collection should only contain 20 and 30")
+          .as("[Java+Guava+LambdaJ+Fluent] Assert collection should only contain 20 and 30")
           .containsExactly(20, 30);
 
     } catch (IOException e) {
