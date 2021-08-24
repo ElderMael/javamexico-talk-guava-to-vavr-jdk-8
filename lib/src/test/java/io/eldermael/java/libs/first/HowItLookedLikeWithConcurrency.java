@@ -47,6 +47,7 @@ public class HowItLookedLikeWithConcurrency {
       @Override
       public ProcessResult call() throws Exception {
         try {
+          // Will throw an ExecutionException wrapping MailException
           ProcessResult result = emailResult.get();
 
           if (result.equals(ProcessResult.SUCCESS)) {
@@ -95,7 +96,7 @@ public class HowItLookedLikeWithConcurrency {
       }
     });
 
-    ListenableFuture<ProcessResult> alertSentOrQueued = Futures.catchingAsync(
+    ListenableFuture<ProcessResult> alertSentOrQueued = Futures.catchingAsync( // Futures.withFallback
         emailResult,
         MailException.class,
         new AsyncFunction<MailException, ProcessResult>() {
@@ -126,7 +127,8 @@ public class HowItLookedLikeWithConcurrency {
         .supplyAsync(() -> {
           mailSender.sendAlertEmail(message);
           return ProcessResult.SUCCESS;
-        }, executor).exceptionallyAsync(throwable -> {
+        }, executor)
+        .exceptionallyAsync(throwable -> {
           if (throwable.getCause() instanceof MailException) {
             return persistEmailForLater(message);
           }
