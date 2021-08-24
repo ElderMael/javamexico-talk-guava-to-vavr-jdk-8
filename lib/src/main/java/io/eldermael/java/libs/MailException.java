@@ -1,8 +1,6 @@
 package io.eldermael.java.libs;
 
-import java.io.IOException;
-
-public class MailException extends IOException {
+public class MailException extends RuntimeException {
 
   public MailException(String message) {
     super(message);

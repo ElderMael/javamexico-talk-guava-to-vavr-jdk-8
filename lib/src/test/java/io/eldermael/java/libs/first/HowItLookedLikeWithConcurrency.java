@@ -14,6 +14,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -115,6 +116,33 @@ public class HowItLookedLikeWithConcurrency {
               .isEqualTo(ProcessResult.SUCCESS);
         });
 
+  }
+
+  // Everything is easier with newer Java versions
+  @Test
+  void shouldComposeOnFailingFutureWithJdk() {
+    var message = "Oopsie!";
+    var alertSentOrQueued = CompletableFuture
+        .supplyAsync(() -> {
+          mailSender.sendAlertEmail(message);
+          return ProcessResult.SUCCESS;
+        }, executor).exceptionallyAsync(throwable -> {
+          if (throwable.getCause() instanceof MailException) {
+            return persistEmailForLater(message);
+          }
+          return ProcessResult.ERROR;
+        }, executor);
+
+    await()
+        .untilAsserted(() -> {
+          assertThat(alertSentOrQueued)
+              .as("[JDK] Assert email is sent or queued successfully")
+              .isNotCancelled()
+              .isDone();
+
+          assertThat(alertSentOrQueued.get())
+              .isEqualTo(ProcessResult.SUCCESS);
+        });
   }
 
   private ProcessResult persistEmailForLater(String message) {
