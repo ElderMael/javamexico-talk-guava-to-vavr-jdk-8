@@ -1,5 +1,6 @@
 package io.eldermael.java.libs.first;
 
+import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -13,6 +14,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -35,12 +37,8 @@ public class HowItLookedLikeWithConcurrency {
     Future<ProcessResult> emailResult = executor.submit(new Callable<ProcessResult>() {
       @Override
       public ProcessResult call() throws Exception {
-        try {
-          mailSender.sendAlertEmail(message);
-          return ProcessResult.SUCCESS;
-        } catch (MailException e) {
-          return ProcessResult.ERROR;
-        }
+        mailSender.sendAlertEmail(message);
+        return ProcessResult.SUCCESS;
       }
     });
 
@@ -50,45 +48,24 @@ public class HowItLookedLikeWithConcurrency {
         try {
           ProcessResult result = emailResult.get();
 
-          if (result.equals(ProcessResult.ERROR)) {
+          if (result.equals(ProcessResult.SUCCESS)) {
+            return result;
+          }
+
+          return persistEmailForLater(message);
+        } catch (ExecutionException e) {
+          // Checking if thrown exception is an instance of what we expect
+          if (Throwables.getRootCause(e) instanceof MailException) {
             return persistEmailForLater(message);
           }
 
-          return result;
+          return ProcessResult.ERROR;
         } catch (Exception e) {
+          log.error("Unknown error sending email, ", e);
           return ProcessResult.ERROR;
         }
       }
     });
-
-    await()
-        .untilAsserted(() -> {
-          assertThat(alertSentOrQueued)
-              .as("[JDK] Assert email is sent or queued successfully")
-              .isNotCancelled()
-              .isDone();
-        });
-
-  }
-
-  @Test
-  void shouldComposeFutureUsingGuavaListenableFuture() {
-    String message = "Oopsie!";
-
-    ListenableFuture<ProcessResult> emailResult = listeningExecutor.submit(new Callable<ProcessResult>() {
-      @Override
-      public ProcessResult call() throws Exception {
-        mailSender.sendAlertEmail(message);
-        return ProcessResult.SUCCESS;
-      }
-    });
-
-    ListenableFuture<ProcessResult> alertSentOrQueued = Futures.catchingAsync(emailResult, MailException.class, new AsyncFunction<MailException, ProcessResult>() {
-      @Override
-      public @Nullable ListenableFuture<ProcessResult> apply(@Nullable MailException input) {
-        return Futures.immediateFuture(persistEmailForLater(message));
-      }
-    }, listeningExecutor);
 
     await()
         .untilAsserted(() -> {
@@ -103,9 +80,40 @@ public class HowItLookedLikeWithConcurrency {
 
   }
 
+  // Guava provides a way to catch exceptions by composing on errors
+  // Futures.transform also composes
   @Test
-  void shouldComposeFutureUsingGuavaListenableFutureMoreIdiomatically() {
+  void shouldComposeFutureUsingGuavaListenableFuture() {
+    String message = "Oopsie!";
 
+    ListenableFuture<ProcessResult> emailResult = listeningExecutor.submit(new Callable<ProcessResult>() {
+      @Override
+      public ProcessResult call() throws Exception {
+        mailSender.sendAlertEmail(message);
+        return ProcessResult.SUCCESS;
+      }
+    });
+
+    ListenableFuture<ProcessResult> alertSentOrQueued = Futures.catchingAsync(
+        emailResult,
+        MailException.class,
+        new AsyncFunction<MailException, ProcessResult>() {
+          @Override
+          public @Nullable ListenableFuture<ProcessResult> apply(@Nullable MailException input) {
+            return Futures.immediateFuture(persistEmailForLater(message));
+          }
+        }, listeningExecutor);
+
+    await()
+        .untilAsserted(() -> {
+          assertThat(alertSentOrQueued)
+              .as("[JDK] Assert email is sent or queued successfully")
+              .isNotCancelled()
+              .isDone();
+
+          assertThat(alertSentOrQueued.get())
+              .isEqualTo(ProcessResult.SUCCESS);
+        });
 
   }
 
