@@ -24,7 +24,8 @@ public class HowItLookedLikeWithOtherStuff extends BaseTestConfiguration {
     // API is more extensive
     // Non-serializable
     assertThat(java.util.Optional.of("").map(s -> null))
-        .isEmpty();
+        .isEmpty()
+        .isEqualTo(java.util.Optional.empty());
 
     // Monadic
     // API is very substantial, tons of compatibility methods with JDK
