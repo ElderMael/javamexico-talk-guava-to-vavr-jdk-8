@@ -167,7 +167,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
       // Closures can be cast to any Functional Inteface i.e. any one-method inteface
       List<Integer> ints = convert(batchFileLines, (Converter<String, Integer>) toInt.cast(Converter.class));
 
-      // Filtaring, projection and aggregation can use Hamcrest matchers
+      // Filtering, projection and aggregation can use Hamcrest matchers
       // This simplifies code greatly
       List<Integer> greaterThanTen = filter(greaterThan(10), ints);
 

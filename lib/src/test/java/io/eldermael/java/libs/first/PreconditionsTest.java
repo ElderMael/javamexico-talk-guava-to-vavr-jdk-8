@@ -13,20 +13,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class PreconditionsTest {
 
   // Check for nulls
-  // Let's ignore null can be handled better :)
-  @Test
-  void shouldThrowNullPointerExceptionUsingJdk() {
-    assertThatExceptionOfType(NullPointerException.class)
-        .as("[JDK] Assert code will throw null.")
-        .isThrownBy(() -> {
-          String possiblyNull = willBeNull();
-          // Uses supplier to create a message
-          var wontBeNull = Objects.requireNonNull(possiblyNull,
-              () -> String.format("'possiblyNull' is %s", possiblyNull));
-        })
-        .withMessage("'possiblyNull' is null");
-  }
-
   @Test
   void shouldThrowNullPointerExceptionUsingGuava() {
     assertThatExceptionOfType(NullPointerException.class)
@@ -37,6 +23,20 @@ public class PreconditionsTest {
               possiblyNull,
               "'possiblyNull' is %s",
               possiblyNull);
+        })
+        .withMessage("'possiblyNull' is null");
+  }
+
+  // Let's ignore null can be handled better :)
+  @Test
+  void shouldThrowNullPointerExceptionUsingJdk() {
+    assertThatExceptionOfType(NullPointerException.class)
+        .as("[JDK] Assert code will throw null.")
+        .isThrownBy(() -> {
+          String possiblyNull = willBeNull();
+          // Uses supplier to create a message
+          var wontBeNull = Objects.requireNonNull(possiblyNull,
+              () -> String.format("'possiblyNull' is %s", possiblyNull));
         })
         .withMessage("'possiblyNull' is null");
   }
