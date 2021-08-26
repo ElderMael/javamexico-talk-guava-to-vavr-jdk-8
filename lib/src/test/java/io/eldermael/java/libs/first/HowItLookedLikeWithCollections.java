@@ -1,5 +1,6 @@
 package io.eldermael.java.libs.first;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import io.eldermael.java.libs.BaseTestConfiguration;
@@ -23,12 +24,27 @@ public class HowItLookedLikeWithCollections extends BaseTestConfiguration {
   @Test
   void shouldFilterRecordsWithCodeSsUsingGuava() {
 
-    Iterables.filter(sampleData(), new Predicate<Record>() {
+    Iterable<Record> recordsHavingCodeWithDoubleS = Iterables.filter(sampleData(), new Predicate<Record>() {
       @Override
       public boolean apply(@Nullable Record input) {
-        return false;
+        return input.getCode().contains("SS");
       }
     });
+
+    Iterable<Double> amountsOnRecords = Iterables.transform(recordsHavingCodeWithDoubleS, new Function<Record, Double>() {
+      @Override
+      public @Nullable Double apply(@Nullable Record input) {
+        return input.getAmount();
+      }
+    });
+
+    assertThat(recordsHavingCodeWithDoubleS)
+        .as("[LambdaJ] should contain SSS and SSA")
+        .allMatch(r -> r.getCode().contains("SS"));
+
+    assertThat(amountsOnRecords)
+        .as("[LambdaJ] should contain 200 and 200")
+        .containsExactly(200.0, 200.0);
 
   }
 
