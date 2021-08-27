@@ -40,7 +40,8 @@ public class HowItLookedLikeWithIo {
           } catch (IOException e) {
             throw new RuntimeException(e);
           } finally {
-            // Closeables.closeQuietly(closer); <- This used to be able to close any Closeable
+            // Closeables.closeQuietly(closer); // <- This used to be able to close any Closeable
+            // Closer.closeQuietly(); // <- Don't remember but maybe we had something like this
             try {
               closer.close();
               // throw new IOException("Fail");
