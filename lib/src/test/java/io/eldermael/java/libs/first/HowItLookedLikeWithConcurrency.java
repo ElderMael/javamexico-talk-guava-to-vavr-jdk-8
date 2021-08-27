@@ -116,7 +116,6 @@ public class HowItLookedLikeWithConcurrency {
           assertThat(alertSentOrQueued.get())
               .isEqualTo(ProcessResult.SUCCESS);
         });
-
   }
 
   // Everything is easier with newer Java versions
