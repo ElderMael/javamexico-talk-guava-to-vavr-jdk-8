@@ -16,6 +16,7 @@ public class HowItLookedLikeWithOtherStuff extends BaseTestConfiguration {
     // API is very reduced, recommended to use JDK/Vavr
     // Serializable
     assertThatExceptionOfType(NullPointerException.class)
+        .as("[Guava] Optional throws exceptions when mapping to null")
         .isThrownBy(() -> {
           Optional.of("").transform(s -> null);
         });
@@ -24,6 +25,7 @@ public class HowItLookedLikeWithOtherStuff extends BaseTestConfiguration {
     // API is more extensive
     // Non-serializable
     assertThat(java.util.Optional.of("").map(s -> null))
+        .as("[JDK] Optional returns Optional.empty() when mapping to null")
         .isEmpty()
         .isEqualTo(java.util.Optional.empty());
 
@@ -31,6 +33,7 @@ public class HowItLookedLikeWithOtherStuff extends BaseTestConfiguration {
     // API is very substantial, tons of compatibility methods with JDK
     // Serializable
     assertThat(Option.of("").map(s -> null).get())
+        .as("[Vavr] Optional returns Some(null) when mapping to null")
         .isEqualTo(null);
   }
 

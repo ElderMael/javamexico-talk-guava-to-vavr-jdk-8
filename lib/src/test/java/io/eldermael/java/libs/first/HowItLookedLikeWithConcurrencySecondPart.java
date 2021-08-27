@@ -46,6 +46,8 @@ public class HowItLookedLikeWithConcurrencySecondPart {
   /**
    * This will create a LES that will run tasks in the same thread
    * that invokes ListeningExecutorService#submit
+   * <p>
+   * Used to be called "sameThreadExecutor()"
    */
   final ListeningExecutorService directExecutor = MoreExecutors.listeningDecorator(MoreExecutors.newDirectExecutorService());
 
