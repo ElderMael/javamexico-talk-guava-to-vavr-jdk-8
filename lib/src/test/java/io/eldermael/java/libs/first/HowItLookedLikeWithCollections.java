@@ -94,6 +94,7 @@ public class HowItLookedLikeWithCollections extends BaseTestConfiguration {
   }
 
   // Commons Collections
+  // https://commons.apache.org/proper/commons-collections/javadocs/api-4.4/index.html
   @Test
   void shouldMutateCollectionUsingApacheCommons() {
     // Need to create a mutable list first
