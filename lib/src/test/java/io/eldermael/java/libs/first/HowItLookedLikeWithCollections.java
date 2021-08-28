@@ -5,9 +5,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import io.eldermael.java.libs.BaseTestConfiguration;
 import io.eldermael.java.libs.Record;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.extract;
@@ -88,5 +91,50 @@ public class HowItLookedLikeWithCollections extends BaseTestConfiguration {
     assertThat(amountsOnRecords)
         .as("[LambdaJ] should contain 200 and 200")
         .containsExactly(200.0, 200.0);
+  }
+
+  // Commons Collections
+  @Test
+  void shouldMutateCollectionUsingApacheCommons() {
+    // Need to create a mutable list first
+    List<Record> mutableSampleData = new LinkedList<>();
+
+    // Then shallow copy the contents
+    mutableSampleData.addAll(sampleData());
+
+    // Execute the mutable filter on the copy
+    Boolean successful = CollectionUtils.filter(mutableSampleData,
+        new org.apache.commons.collections4.Predicate<Record>() {
+          @Override
+          public boolean evaluate(Record object) {
+            return object.getCode().contains("SS");
+          }
+        });
+
+    // Verify the mutation happened correctly
+    assertThat(successful).isTrue();
+
+    // Create a new mutable target list
+    List<Double> transformed = new LinkedList<>();
+
+    // Execute a transformation that will copy the transformed element
+    // to a new list
+    var transformed2 = CollectionUtils.collect(mutableSampleData, new Transformer<Record, Double>() {
+      @Override
+      public Double transform(Record input) {
+        return input.getAmount();
+      }
+    }, transformed);
+
+    // Check the transformation happened somehow, as the previous
+    // method does not return boolean or something
+    assertThat(transformed)
+        .as("[Commons] should contain 200 and 200")
+        .containsExactly(200.0, 200.0);
+
+    assertThat(transformed2)
+        .as("[Commons] should contain 200 and 200")
+        .containsExactly(200.0, 200.0)
+        .isEqualTo(transformed);
   }
 }

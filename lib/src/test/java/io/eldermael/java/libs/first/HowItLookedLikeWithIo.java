@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 @SuppressWarnings("ALL")
 public class HowItLookedLikeWithIo {
 
+  // Closer helped before Java 7 Try-With-Resources
   @Test
   void shouldCloseStreamsUsingJavaFiveIdioms() {
 
@@ -58,6 +59,7 @@ public class HowItLookedLikeWithIo {
 
   }
 
+  // This is a bit better
   @Test
   void shouldSuppressExceptionsThrownInTryWithResources() throws IOException {
     FileInputStream inputStream = givenThrowingFileInputStream();
@@ -71,6 +73,11 @@ public class HowItLookedLikeWithIo {
         .withMessageNotContaining("Suppress");
 
     then(inputStream).should().close();
+  }
+
+  @Test
+  void shouldDoSomethingWithCommons() {
+    
   }
 
   @SneakyThrows

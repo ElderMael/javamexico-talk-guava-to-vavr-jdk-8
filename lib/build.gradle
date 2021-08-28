@@ -39,6 +39,7 @@ dependencies {
     implementation 'org.javatuples:javatuples:1.2'
     implementation 'com.google.guava:guava:30.1.1-jre'
     implementation 'com.googlecode.lambdaj:lambdaj:2.3.3'
+    implementation 'org.apache.commons:commons-collections4:4.4'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.20'
