@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -37,18 +38,18 @@ public class HowItLookedLikeUsingVavr {
             inputSTreamReader::get,
             bufferedReader::get
         )
-        .of((fis, isr, br) -> br.lines().toList()) // Read the lines
+        .of((fis, isr, br) -> br.lines().map(Integer::parseInt).toList()) // Read the lines
         .filter(not(List::isEmpty)) // This will return a Try.Failure if the list is empty
-        .map(lines -> lines.stream().map(Integer::parseInt).toList()) // Convert lines to ints
         .getOrElseThrow(throwable -> { // To preserve semantics, convert NoSuchElementException to IllegalStateException
           if (throwable instanceof NoSuchElementException) {
             return new IllegalStateException(throwable);
           }
+          // If this is a UncheckedIOException then it's already a RuntimeException
           return throwable;
         })
         .stream() // Stream
-        .filter(i -> i > 10)
-        .toList(); // Filter ints
+        .filter(i -> i > 10) // filter ints
+        .toList(); // make a list
 
     assertThat(ints)
         .as("[Vavr] Assert collection should only contain 20 and 30")

@@ -21,9 +21,9 @@ import java.util.concurrent.ForkJoinPool;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-public class FuturesTest extends BaseTestConfiguration {
+public class HowItLookedLikeWithCompletableFuture extends BaseTestConfiguration {
 
-  private static final Logger log = LoggerFactory.getLogger(FuturesTest.class);
+  private static final Logger log = LoggerFactory.getLogger(HowItLookedLikeWithCompletableFuture.class);
 
   // Guava's ListenableFutures are created from this wrapper
   // or SettableFuture
@@ -122,13 +122,13 @@ public class FuturesTest extends BaseTestConfiguration {
     await()
         .untilAsserted(() -> {
           assertThat(listenableProcessResult)
-              .as("Guava future mapping to ProcessResult")
+              .as("ListenableFuture mapping to ProcessResult")
               .isDone()
               .has(successfulProcessResult)
               .isNotCancelled();
 
           assertThat(completableFuture)
-              .as("Completable Future mapping to ProcessResult")
+              .as("CompletableFuture mapping to ProcessResult")
               .isCompleted()
               .isCompletedWithValue(ProcessResult.SUCCESS)
               .isNotCancelled();
