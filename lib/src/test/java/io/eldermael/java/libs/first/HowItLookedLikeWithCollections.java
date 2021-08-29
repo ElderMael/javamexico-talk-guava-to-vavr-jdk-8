@@ -101,7 +101,7 @@ public class HowItLookedLikeWithCollections extends BaseTestConfiguration {
     List<Record> mutableSampleData = new LinkedList<>();
 
     // Then shallow copy the contents
-    mutableSampleData.addAll(sampleData());
+    mutableSampleData.addAll(sampleData()); // Sample data is immutable, thus the copy
 
     // Execute the mutable filter on the copy
     Boolean successful = CollectionUtils.filter(mutableSampleData,
@@ -113,6 +113,7 @@ public class HowItLookedLikeWithCollections extends BaseTestConfiguration {
         });
 
     // Verify the mutation happened correctly
+    // This is more like metadata from the operation than anything else
     assertThat(successful).isTrue();
 
     // Create a new mutable target list
