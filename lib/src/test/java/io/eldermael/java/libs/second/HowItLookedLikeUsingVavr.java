@@ -4,15 +4,16 @@ import io.vavr.Lazy;
 import io.vavr.control.Try;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ public class HowItLookedLikeUsingVavr {
           return throwable;
         })
         .stream() // Stream
-        .filter(i -> i > 10) // filter ints
+        .filter(greaterThan(10)) // filter ints
         .toList(); // make a list
 
     assertThat(ints)
@@ -75,5 +76,9 @@ public class HowItLookedLikeUsingVavr {
     String fileName = this.getClass().getClassLoader().getResource(filePath).getFile();
     log.info("Reading file '{}'", fileName);
     return new File(fileName);
+  }
+
+  private <T extends Comparable<T>> Predicate<T> greaterThan(T comparable) {
+    return t -> Matchers.greaterThan(comparable).matches(t);
   }
 }
