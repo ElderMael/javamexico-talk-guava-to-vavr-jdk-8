@@ -109,6 +109,7 @@ public class HowItLookedLikeWithConcurrency {
     String message = "Oopsie!";
 
     // Create a Listenable from a faulty process
+    // Anonymous classes all over the place
     ListenableFuture<ProcessResult> emailResult = listeningExecutor.submit(new Callable<ProcessResult>() {
       @Override
       public ProcessResult call() throws Exception {

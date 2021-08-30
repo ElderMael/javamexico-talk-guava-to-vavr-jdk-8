@@ -49,7 +49,7 @@ public class HowItLookedLikeUsingVavr {
           return throwable;
         })
         .stream() // Stream
-        .filter(greaterThan(10)) // filter ints
+        .filter(greaterThan(10)) // filter ints i -> i > 10
         .toList(); // make a list
 
     assertThat(ints)
