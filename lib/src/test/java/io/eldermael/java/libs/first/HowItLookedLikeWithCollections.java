@@ -62,7 +62,7 @@ public class HowItLookedLikeWithCollections extends BaseTestConfiguration {
 
     // List<Record> recordsHavingCodeWithDoubleS = select(sampleData(), having(on(Record.class).getCode(), containsString("SS")));
 
-    List<Double> amountsOnRecords = extract(recordsHavingCodeWithDoubleS, on(Record.class).getAmount());
+    List<Double> amountsOnRecords = extract(recordsHavingCodeWithDoubleS, on(Record.class).getAmount()); // Method references before Java 8
 
     assertThat(recordsHavingCodeWithDoubleS)
         .as("[LambdaJ] should contain SSS and SSA")

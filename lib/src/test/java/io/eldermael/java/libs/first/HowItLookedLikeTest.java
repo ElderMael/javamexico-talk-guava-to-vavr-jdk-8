@@ -201,6 +201,7 @@ public class HowItLookedLikeTest extends BaseTestConfiguration {
           batchFile.getName()
       );
 
+      // Method references before Java 8
       Closure toInt = Lambda.closure().of(Integer.class, "parseInt", var(String.class));
 
       // Nesting functions gets hard to read the more you add
